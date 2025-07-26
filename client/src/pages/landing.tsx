@@ -25,24 +25,23 @@ export default function Landing() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Choose Your Access Level
+            Access Emergency Contacts
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Access emergency contacts for your location or manage the emergency contact database 
-            with administrative privileges.
+            Get instant access to emergency contacts in your area. Admin users are automatically 
+            redirected to management dashboard.
           </p>
         </div>
 
-        {/* Login Options */}
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {/* User Login Card */}
+        {/* Single Login Card */}
+        <div className="max-w-md mx-auto">
           <Card className="hover:shadow-lg transition-shadow duration-300 border-2 hover:border-blue-200">
             <CardHeader className="text-center pb-4">
-              <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="w-8 h-8 text-blue-600" />
+              <div className="bg-gradient-to-r from-blue-100 to-red-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Shield className="w-10 h-10 text-blue-600" />
               </div>
-              <CardTitle className="text-2xl text-gray-900">User Access</CardTitle>
-              <p className="text-gray-600">Find emergency contacts in your area</p>
+              <CardTitle className="text-2xl text-gray-900">Emergency Access</CardTitle>
+              <p className="text-gray-600">One login for all users</p>
             </CardHeader>
             <CardContent className="text-center space-y-4">
               <div className="space-y-3 text-sm text-gray-600">
@@ -58,64 +57,27 @@ export default function Landing() {
                   <ShieldCheck className="w-4 h-4 text-blue-500" />
                   <span>Click-to-call emergency numbers</span>
                 </div>
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-red-500" />
+                  <span>Admin access for authorized users</span>
+                </div>
               </div>
               
               <div className="pt-4">
                 <Link href="/login">
                   <Button 
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg"
-                    data-testid="button-user-login"
+                    className="w-full bg-gradient-to-r from-blue-600 to-red-600 hover:from-blue-700 hover:to-red-700 text-white py-3 text-lg"
+                    data-testid="button-login"
                   >
-                    User Login
+                    Sign In
                   </Button>
                 </Link>
               </div>
               
-              <p className="text-xs text-gray-500 mt-3">
-                Enter your email to access emergency contacts
-              </p>
-            </CardContent>
-          </Card>
-
-          {/* Admin Login Card */}
-          <Card className="hover:shadow-lg transition-shadow duration-300 border-2 hover:border-red-200">
-            <CardHeader className="text-center pb-4">
-              <div className="bg-red-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <ShieldCheck className="w-8 h-8 text-red-600" />
+              <div className="text-xs text-gray-500 mt-3 space-y-1">
+                <p>Enter your email to get started</p>
+                <p>Admin: yutikamadwai1828@gmail.com</p>
               </div>
-              <CardTitle className="text-2xl text-gray-900">Admin Access</CardTitle>
-              <p className="text-gray-600">Manage emergency contacts & users</p>
-            </CardHeader>
-            <CardContent className="text-center space-y-4">
-              <div className="space-y-3 text-sm text-gray-600">
-                <div className="flex items-center gap-2">
-                  <Shield className="w-4 h-4 text-red-500" />
-                  <span>Add, edit & delete emergency contacts</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-red-500" />
-                  <span>View user analytics & management</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-red-500" />
-                  <span>Full database management control</span>
-                </div>
-              </div>
-              
-              <div className="pt-4">
-                <Link href="/admin-login">
-                  <Button 
-                    className="w-full bg-red-600 hover:bg-red-700 text-white py-3 text-lg"
-                    data-testid="button-admin-login"
-                  >
-                    Admin Login
-                  </Button>
-                </Link>
-              </div>
-              
-              <p className="text-xs text-gray-500 mt-3">
-                Administrative access required
-              </p>
             </CardContent>
           </Card>
         </div>

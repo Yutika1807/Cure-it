@@ -93,15 +93,9 @@ export default function Login() {
             </form>
           </Form>
           
-          <div className="mt-6 text-center">
-            <Link href="/admin-login" className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800" data-testid="link-admin-login">
-              <Shield className="w-4 h-4 mr-1" />
-              Admin Login
-            </Link>
-          </div>
-
-          <div className="mt-4 text-center text-sm text-gray-600">
+          <div className="mt-6 text-center text-sm text-gray-600">
             <p>Enter your email to access emergency contacts</p>
+            <p className="mt-2 text-xs">Admin users will be automatically redirected to the admin panel</p>
           </div>
         </CardContent>
       </Card>
