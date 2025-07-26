@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/use-auth";
 import Login from "@/pages/login";
 import Home from "@/pages/home";
+import User from "@/pages/user";
 import Admin from "@/pages/admin";
 import NotFound from "@/pages/not-found";
 
@@ -32,7 +33,7 @@ function ProtectedRoute({ children, requireAdmin = false }: { children: React.Re
 }
 
 function Router() {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, isAdmin, loading } = useAuth();
 
   if (loading) {
     return (
@@ -45,7 +46,9 @@ function Router() {
   return (
     <Switch>
       <Route path="/login">
-        {isAuthenticated ? <Redirect to="/" /> : <Login />}
+        {isAuthenticated ? (
+          isAdmin ? <Redirect to="/admin" /> : <Redirect to="/user" />
+        ) : <Login />}
       </Route>
       
       <Route path="/admin">
@@ -54,10 +57,16 @@ function Router() {
         </ProtectedRoute>
       </Route>
       
-      <Route path="/">
+      <Route path="/user">
         <ProtectedRoute>
-          <Home />
+          <User />
         </ProtectedRoute>
+      </Route>
+      
+      <Route path="/">
+        {isAuthenticated ? (
+          isAdmin ? <Redirect to="/admin" /> : <Redirect to="/user" />
+        ) : <Redirect to="/login" />}
       </Route>
       
       <Route component={NotFound} />
