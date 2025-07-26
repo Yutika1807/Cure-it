@@ -27,8 +27,18 @@ export function useAuth() {
   };
 
   const logout = async () => {
-    await authService.logout();
-    setUser(null);
+    try {
+      await authService.logout();
+      setUser(null);
+      // Force a page refresh to clear any cached state
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Even if logout fails on server, clear local state
+      setUser(null);
+      localStorage.removeItem('sessionId');
+      window.location.href = '/';
+    }
   };
 
   const updateUser = (updatedUser: User) => {
