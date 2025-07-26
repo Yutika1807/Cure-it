@@ -1,0 +1,51 @@
+Great! If you're using **PostgreSQL** instead of Firebase, here's your **best and final prompt** to enhance your existing `CureIt` app with:
+
+* User/Admin roles
+* PostgreSQL for storing users, roles, contacts, and login logs
+* Geolocation-based filtering
+* Full admin dashboard and access control
+
+---
+
+### ✅ **Final Integration Prompt with PostgreSQL:**
+
+> Enhance the existing `CureIt` web application by integrating a **role-based authentication system** using **PostgreSQL** as the backend database. Implement two roles: **User** and **Admin**.
+>
+> 1. When a user signs up, automatically assign them the **User** role.
+> 2. Predefine one **Admin account** with the following credentials:
+>
+>    * Email: `yutikamadwai1828@gmail.com`
+>    * Password: `Yutika@2818`
+>
+> 🔐 After login:
+>
+> * If the user is a **User**, redirect them to a **User Panel** that shows emergency contact numbers (Police, Ambulance, Fire, Municipality) based on their **current location**, fetched using the **Geolocation API**.
+> * If the user is the **Admin**, redirect to an **Admin Dashboard** with the following capabilities:
+>
+>   * **Add, edit, and delete emergency contacts**, with fields like name, designation, phone number, and assigned location (city or coordinates).
+>   * **View a full list of registered users**, including:
+>
+>     * Email
+>     * Role
+>     * Last login time
+>     * Location where they logged in (captured using Geolocation API and stored in the database).
+>
+> 🗃️ **Database Requirements (PostgreSQL):**
+>
+> * Create a `users` table with fields: `id`, `name`, `email`, `password_hash`, `role`, `last_login_time`, `login_lat`, `login_lng`.
+> * Create a `contacts` table with fields: `id`, `name`, `designation`, `phone`, `city`, `lat`, `lng`, `category`.
+> * Ensure only the admin can perform **CRUD operations** on the contacts table and access the user list.
+>
+> 🧠 Additional Requirements:
+>
+> * Use **bcrypt** for secure password hashing.
+> * Use **Express.js with Node.js** (or any backend you prefer) to connect to PostgreSQL.
+> * Use **session-based or JWT-based authentication** to manage login state.
+> * Build a clean, responsive frontend using **Tailwind CSS or Bootstrap**.
+> * Enforce role-based access control on both frontend and backend.
+
+---
+
+This prompt gives Replit AI everything it needs to add PostgreSQL-driven role logic, secure login, and geolocation-aware functionality.
+
+Would you like a schema diagram or initial SQL migration for the PostgreSQL setup too?
