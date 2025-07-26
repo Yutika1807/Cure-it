@@ -48,13 +48,14 @@ export default function Home() {
 
   const { data: contacts = [], isLoading } = useQuery({
     queryKey: ['/api/emergency-contacts', { 
-      city: selectedCity || location.city,
+      city: selectedCity === 'all' ? '' : (selectedCity || location.city),
       state: location.state,
       search: searchTerm 
     }],
     queryFn: async () => {
       const params = new URLSearchParams();
-      if (selectedCity || location.city) params.append('city', selectedCity || location.city);
+      const cityToFilter = selectedCity === 'all' ? '' : (selectedCity || location.city);
+      if (cityToFilter) params.append('city', cityToFilter);
       if (location.state) params.append('state', location.state);
       if (searchTerm) params.append('search', searchTerm);
       
@@ -157,7 +158,7 @@ export default function Home() {
                     <SelectValue placeholder="All Cities" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Cities</SelectItem>
+                    <SelectItem value="all">All Cities</SelectItem>
                     <SelectItem value="Mumbai">Mumbai</SelectItem>
                     <SelectItem value="Delhi">Delhi</SelectItem>
                     <SelectItem value="Bangalore">Bangalore</SelectItem>
@@ -195,7 +196,7 @@ export default function Home() {
                   <CardContent className="p-4">
                     {serviceContacts.length === 0 ? (
                       <div className="text-center py-8 text-gray-500">
-                        No {serviceType} contacts found for {selectedCity || location.city}
+                        No {serviceType} contacts found for {selectedCity === 'all' ? 'any location' : (selectedCity || location.city)}
                       </div>
                     ) : (
                       <div className="space-y-4">

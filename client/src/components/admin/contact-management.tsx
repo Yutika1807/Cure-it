@@ -57,8 +57,8 @@ export function ContactManagement() {
     queryKey: ['/api/emergency-contacts', filters],
     queryFn: async () => {
       const params = new URLSearchParams();
-      if (filters.serviceType) params.append('serviceType', filters.serviceType);
-      if (filters.city) params.append('city', filters.city);
+      if (filters.serviceType && filters.serviceType !== 'all') params.append('serviceType', filters.serviceType);
+      if (filters.city && filters.city !== 'all') params.append('city', filters.city);
       if (filters.search) params.append('search', filters.search);
       
       const response = await fetch(`/api/emergency-contacts?${params}`);
@@ -374,7 +374,7 @@ export function ContactManagement() {
               <SelectValue placeholder="All Service Types" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Service Types</SelectItem>
+              <SelectItem value="all">All Service Types</SelectItem>
               <SelectItem value="police">Police</SelectItem>
               <SelectItem value="medical">Medical</SelectItem>
               <SelectItem value="fire">Fire</SelectItem>
