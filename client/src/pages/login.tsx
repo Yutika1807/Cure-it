@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -21,6 +21,7 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -32,11 +33,19 @@ export default function Login() {
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     try {
-      await login(data.email);
+      const session = await login(data.email);
       toast({
         title: "Welcome to Cure It!",
         description: "You have been successfully logged in.",
       });
+      
+      // Redirect based on user role
+      const isAdmin = session.user.email === 'yutikamadwai1828@gmail.com';
+      if (isAdmin) {
+        setLocation('/admin');
+      } else {
+        setLocation('/user');
+      }
     } catch (error) {
       toast({
         title: "Login failed",
