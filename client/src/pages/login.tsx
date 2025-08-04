@@ -36,8 +36,13 @@ export default function Login() {
     setIsLoading(true);
     try {
       const session = await login(data.email, data.password);
+      
+      // Extract first name from email
+      const firstName = data.email.split('@')[0].split(/[._]/)[0];
+      const capitalizedFirstName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
+      
       toast({
-        title: "Welcome to Cure It!",
+        title: `Welcome ${capitalizedFirstName}!`,
         description: "You have been successfully logged in.",
       });
       
@@ -124,7 +129,6 @@ export default function Login() {
           
           <div className="mt-6 text-center text-sm text-gray-600">
             <p>Enter your email and password to access emergency contacts</p>
-            <p className="mt-2 text-xs">Admin users will be automatically redirected to the admin panel</p>
             <p className="mt-4">
               Don't have an account? <Link href="/register" className="text-blue-600 hover:underline">Create one</Link>
             </p>

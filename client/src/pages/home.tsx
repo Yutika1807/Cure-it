@@ -90,6 +90,11 @@ export default function Home() {
     return email.split('@')[0].slice(0, 2).toUpperCase();
   };
 
+  const getFirstName = (email: string) => {
+    const firstName = email.split('@')[0].split(/[._]/)[0];
+    return firstName.charAt(0).toUpperCase() + firstName.slice(1);
+  };
+
   const emergencyCall = () => {
     window.location.href = 'tel:112';
   };
@@ -118,7 +123,7 @@ export default function Home() {
                         {getInitials(user?.email || '')}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="hidden sm:block text-sm font-medium text-neutral-text">{user?.email}</span>
+                    <span className="hidden sm:block text-sm font-medium text-neutral-text">Welcome, {user?.email ? getFirstName(user.email) : ''}!</span>
                     <ChevronDown className="w-4 h-4 text-gray-500" />
                   </Button>
                 </DropdownMenuTrigger>

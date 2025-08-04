@@ -181,7 +181,7 @@ export default function UserPage() {
                 Cure It - Emergency Contacts
               </h1>
               <p className="text-sm text-gray-600" data-testid="text-user-welcome">
-                Welcome, {user?.email}
+                Welcome, {user?.email ? user.email.split('@')[0].split(/[._]/)[0].charAt(0).toUpperCase() + user.email.split('@')[0].split(/[._]/)[0].slice(1) : ''}!
               </p>
             </div>
             <Button 
