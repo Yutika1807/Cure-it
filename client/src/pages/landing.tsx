@@ -74,9 +74,8 @@ export default function Landing() {
                 </Link>
               </div>
               
-              <div className="text-xs text-gray-500 mt-3 space-y-1">
+              <div className="text-xs text-gray-500 mt-3">
                 <p>Enter your email to get started</p>
-                <p>Admin: yutikamadwai1828@gmail.com</p>
               </div>
             </CardContent>
           </Card>

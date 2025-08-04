@@ -8,6 +8,14 @@ This is a full-stack emergency contacts application called "Cure It" built with 
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes (August 2025)
+
+### Security & User Experience Improvements
+- **Removed Admin Email Exposure**: Eliminated admin email display from login and landing pages for security
+- **Enhanced Authentication UX**: Added password visibility toggles to all password fields (login and registration)
+- **Personalized Welcome Messages**: Implemented first name extraction from emails for friendly greetings
+- **Updated User Interface**: All pages now display "Welcome, [FirstName]!" instead of full email addresses
+
 ## System Architecture
 
 ### Frontend Architecture
