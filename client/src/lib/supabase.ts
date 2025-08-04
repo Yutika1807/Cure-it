@@ -40,18 +40,25 @@ export class AuthService {
     return this.session;
   }
 
-  async login(email: string): Promise<Session> {
+  async login(email: string, password: string): Promise<Session> {
+    console.log('Attempting login for:', email);
+    
     const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email, password }),
     });
 
+    console.log('Login response status:', response.status);
+    
     if (!response.ok) {
-      throw new AuthError('Login failed');
+      const errorData = await response.json().catch(() => ({}));
+      console.error('Login error response:', errorData);
+      throw new AuthError(errorData.error || 'Login failed');
     }
 
     const data = await response.json();
+    console.log('Login successful, session created');
     this.session = data;
     localStorage.setItem('sessionId', data.sessionId);
     return data;

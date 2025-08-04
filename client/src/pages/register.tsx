@@ -8,49 +8,69 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/use-auth';
 import { Link, useLocation } from 'wouter';
 
-const loginSchema = z.object({
+const registerSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(1, 'Password is required'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  confirmPassword: z.string().min(1, 'Please confirm your password'),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
 });
 
-type LoginFormData = z.infer<typeof loginSchema>;
+type RegisterFormData = z.infer<typeof registerSchema>;
 
-export default function Login() {
+export default function Register() {
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
 
-  const form = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
       email: '',
       password: '',
+      confirmPassword: '',
     },
   });
 
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true);
     try {
-      const session = await login(data.email, data.password);
+      console.log('Submitting registration for:', data.email);
+      
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+        }),
+      });
+
+      console.log('Registration response status:', response.status);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Registration error response:', errorData);
+        throw new Error(errorData.error || 'Registration failed');
+      }
+
+      const result = await response.json();
+      console.log('Registration successful:', result);
+
       toast({
-        title: "Welcome to Cure It!",
-        description: "You have been successfully logged in.",
+        title: "Registration successful!",
+        description: "You can now log in with your email and password.",
       });
       
-      // Redirect based on user role
-      if (session.user.role === 'admin') {
-        setLocation('/admin');
-      } else {
-        setLocation('/user');
-      }
+      setLocation('/login');
     } catch (error) {
+      console.error('Registration error:', error);
       toast({
-        title: "Login failed",
-        description: "Please check your email and password and try again.",
+        title: "Registration failed",
+        description: error instanceof Error ? error.message : "Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -68,7 +88,7 @@ export default function Login() {
             </div>
             <CardTitle className="text-3xl font-bold text-neutral-text">Cure It</CardTitle>
           </div>
-          <p className="text-gray-600">Emergency contacts at your fingertips</p>
+          <p className="text-gray-600">Create your account</p>
         </CardHeader>
         
         <CardContent>
@@ -112,25 +132,40 @@ export default function Login() {
                 )}
               />
               
+              <FormField
+                control={form.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Confirm Password</FormLabel>
+                    <FormControl>
+                      <Input 
+                        {...field} 
+                        type="password" 
+                        placeholder="Confirm your password"
+                        data-testid="input-confirm-password"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
               <Button 
                 type="submit" 
                 className="w-full bg-[hsl(207,90%,54%)] hover:bg-blue-700"
                 disabled={isLoading}
-                data-testid="button-login">
-                {isLoading ? 'Signing in...' : 'Sign In'}
+                data-testid="button-register">
+                {isLoading ? 'Creating account...' : 'Create Account'}
               </Button>
             </form>
           </Form>
           
           <div className="mt-6 text-center text-sm text-gray-600">
-            <p>Enter your email and password to access emergency contacts</p>
-            <p className="mt-2 text-xs">Admin users will be automatically redirected to the admin panel</p>
-            <p className="mt-4">
-              Don't have an account? <Link href="/register" className="text-blue-600 hover:underline">Create one</Link>
-            </p>
+            <p>Already have an account? <Link href="/login" className="text-blue-600 hover:underline">Sign in</Link></p>
           </div>
         </CardContent>
       </Card>
     </div>
   );
-}
+} 

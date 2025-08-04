@@ -6,8 +6,10 @@ import { z } from "zod";
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   email: text("email").notNull().unique(),
+  password: text("password").notNull(), // Add password field
   role: text("role").notNull().default("user"), // "user" or "admin"
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
   lastLoginAt: timestamp("last_login_at"),
   city: text("city"),
   state: text("state"),
@@ -41,6 +43,8 @@ export const sessions = pgTable("sessions", {
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   createdAt: true,
+}).extend({
+  password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 export const insertEmergencyContactSchema = createInsertSchema(emergencyContacts).omit({

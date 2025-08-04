@@ -1,10 +1,20 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { z } from "zod";
+import bcrypt from "bcryptjs";
 import { storage } from "./storage";
 import { insertEmergencyContactSchema, insertUserSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  
+  // Health check endpoint
+  app.get("/api/health", (req, res) => {
+    res.json({ 
+      status: "ok", 
+      timestamp: new Date().toISOString(),
+      message: "Cure It API is running successfully!"
+    });
+  });
   
   // Authentication middleware
   const requireAuth = async (req: any, res: any, next: any) => {
@@ -38,13 +48,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
   app.post("/api/auth/login", async (req, res) => {
     try {
-      const { email } = z.object({ email: z.string().email() }).parse(req.body);
+      console.log('Login attempt:', { email: req.body.email, hasPassword: !!req.body.password });
       
+      const { email, password } = z.object({ 
+        email: z.string().email("Please enter a valid email address"),
+        password: z.string().min(1, "Password is required")
+      }).parse(req.body);
+      
+      console.log('Looking for user with email:', email);
       let user = await storage.getUserByEmail(email);
+      
       if (!user) {
-        // Create new user
+        console.log('User not found, creating new user');
+        // Create new user with hashed password
+        const hashedPassword = await bcrypt.hash(password, 10);
         const role = email === 'yutikamadwai1828@gmail.com' ? 'admin' : 'user';
-        user = await storage.createUser({ email, role });
+        user = await storage.createUser({ email, password: hashedPassword, role });
+        console.log('New user created:', { id: user.id, email: user.email, role: user.role });
+      } else {
+        console.log('User found, verifying password');
+        // Verify password for existing user
+        const isValidPassword = await bcrypt.compare(password, user.password);
+        console.log('Password verification result:', isValidPassword);
+        
+        if (!isValidPassword) {
+          console.log('Invalid password for user:', email);
+          return res.status(401).json({ error: "Invalid email or password" });
+        }
+        console.log('Password verified successfully for user:', email);
       }
 
       // Update last login
@@ -55,9 +86,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
       await storage.createSession({ id: sessionId, userId: user.id, expiresAt });
 
-      res.json({ user, sessionId });
+      // Don't send password in response
+      const { password: _, ...userWithoutPassword } = user;
+      console.log('Login successful for user:', { id: user.id, email: user.email, role: user.role });
+      res.json({ user: userWithoutPassword, sessionId });
     } catch (error) {
-      res.status(400).json({ error: "Invalid request" });
+      console.error('Login error:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          error: "Invalid input", 
+          details: error.errors.map(e => `${e.path.join('.')}: ${e.message}`)
+        });
+      }
+      res.status(500).json({ error: "Login failed. Please try again." });
+    }
+  });
+
+  app.post("/api/auth/register", async (req, res) => {
+    try {
+      console.log('Registration attempt:', { email: req.body.email, hasPassword: !!req.body.password });
+      
+      const { email, password, role = 'user' } = z.object({ 
+        email: z.string().email("Please enter a valid email address"),
+        password: z.string().min(6, "Password must be at least 6 characters"),
+        role: z.enum(['user', 'admin']).optional()
+      }).parse(req.body);
+      
+      console.log('Looking for existing user with email:', email);
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(email);
+      if (existingUser) {
+        console.log('User already exists:', email);
+        return res.status(400).json({ error: "User with this email already exists" });
+      }
+
+      console.log('Creating new user with email:', email);
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+      
+      // Create new user
+      const user = await storage.createUser({ email, password: hashedPassword, role });
+
+      // Don't send password in response
+      const { password: _, ...userWithoutPassword } = user;
+      console.log('User created successfully:', { id: user.id, email: user.email, role: user.role });
+      res.status(201).json({ user: userWithoutPassword });
+    } catch (error) {
+      console.error('Registration error:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          error: "Invalid input", 
+          details: error.errors.map(e => `${e.path.join('.')}: ${e.message}`)
+        });
+      }
+      res.status(500).json({ error: "Registration failed. Please try again." });
     }
   });
 
@@ -177,34 +259,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Location detection route
   app.post("/api/location/detect", async (req, res) => {
     try {
+      console.log('Location detection request received');
       const { latitude, longitude } = z.object({
         latitude: z.number(),
         longitude: z.number(),
       }).parse(req.body);
+
+      console.log('Coordinates received:', { latitude, longitude });
 
       // Use BigDataCloud API for reverse geocoding
       const response = await fetch(
         `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
       );
       
+      console.log('BigDataCloud API response status:', response.status);
+      
       if (!response.ok) {
-        throw new Error('Geocoding failed');
+        console.error('BigDataCloud API failed:', response.status, response.statusText);
+        throw new Error(`Geocoding failed: ${response.status}`);
       }
 
       const data = await response.json();
+      console.log('BigDataCloud API response:', data);
       
-      res.json({
-        city: data.city || data.locality || 'Mumbai',
-        state: data.principalSubdivision || 'Maharashtra',
+      const locationData = {
+        city: data.city || data.locality || data.principalSubdivision || 'Mumbai',
+        state: data.principalSubdivision || data.countryName || 'Maharashtra',
         country: data.countryName || 'India',
-      });
+      };
+
+      console.log('Returning location data:', locationData);
+      res.json(locationData);
     } catch (error) {
+      console.error('Location detection error:', error);
       // Fallback to default location
-      res.json({
+      const fallbackData = {
         city: 'Mumbai',
         state: 'Maharashtra',
         country: 'India',
-      });
+      };
+      console.log('Using fallback location:', fallbackData);
+      res.json(fallbackData);
     }
   });
 

@@ -20,8 +20,8 @@ export function useAuth() {
     checkAuth();
   }, []);
 
-  const login = async (email: string) => {
-    const session = await authService.login(email);
+  const login = async (email: string, password: string) => {
+    const session = await authService.login(email, password);
     setUser(session.user);
     return session;
   };

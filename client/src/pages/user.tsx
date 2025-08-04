@@ -7,6 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/hooks/use-auth';
+import { useLocation } from '@/hooks/use-location';
+import { LocationConsent } from '@/components/location-consent';
+import { LocationDebug } from '@/components/location-debug';
 import { EmergencyContact } from '@shared/schema';
 
 interface LocationData {
@@ -101,35 +104,26 @@ export default function UserPage() {
   const [selectedCity, setSelectedCity] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedService, setSelectedService] = useState<string>('all');
+  const { 
+    location: detectedLocation, 
+    showConsent, 
+    handleConsent, 
+    handleDecline,
+    detectLocation,
+    loading: locationLoading,
+    autoDetected
+  } = useLocation();
 
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-          try {
-            const response = await fetch(
-              `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
-            );
-            const data = await response.json();
-            
-            setLocation({
-              city: data.city || 'Mumbai',
-              state: data.principalSubdivision || 'Maharashtra',
-              country: data.countryName || 'India',
-              latitude,
-              longitude
-            });
-          } catch (error) {
-            console.error('Error fetching location:', error);
-          }
-        },
-        (error) => {
-          console.error('Geolocation error:', error);
-        }
-      );
+    // Use the detected location from the hook
+    if (detectedLocation) {
+      setLocation({
+        city: detectedLocation.city,
+        state: detectedLocation.state,
+        country: detectedLocation.country
+      });
     }
-  }, []);
+  }, [detectedLocation]);
 
   const { data: contacts = [], isLoading } = useQuery<EmergencyContact[]>({
     queryKey: ['/api/emergency-contacts'],
@@ -215,6 +209,14 @@ export default function UserPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Location Debug Tool */}
+        <LocationDebug
+          onDetectLocation={detectLocation}
+          loading={locationLoading}
+          location={location}
+          autoDetected={autoDetected}
+        />
+        
         {/* Search and Filters */}
         <div className="mb-8 space-y-4">
           <div className="flex flex-col sm:flex-row gap-4">
@@ -300,6 +302,14 @@ export default function UserPage() {
           </div>
         </div>
       </div>
+
+      {/* Location Consent Popup */}
+      <LocationConsent
+        isOpen={showConsent}
+        onConsent={handleConsent}
+        onDecline={handleDecline}
+        onClose={() => {}}
+      />
     </div>
   );
 }

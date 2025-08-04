@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { EmergencyContactCard } from '@/components/emergency-contact-card';
 import { LocationDetector } from '@/components/location-detector';
+import { LocationConsent } from '@/components/location-consent';
 import { useAuth } from '@/hooks/use-auth';
 import { useLocation } from '@/hooks/use-location';
 import { useToast } from '@/hooks/use-toast';
@@ -43,7 +44,12 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
   const { user, logout, isAdmin } = useAuth();
-  const { location } = useLocation();
+  const { 
+    location, 
+    showConsent, 
+    handleConsent, 
+    handleDecline 
+  } = useLocation();
   const { toast } = useToast();
 
   const { data: contacts = [], isLoading } = useQuery({
@@ -226,6 +232,14 @@ export default function Home() {
           <Phone className="w-8 h-8" />
         </Button>
       </div>
+
+      {/* Location Consent Popup */}
+      <LocationConsent
+        isOpen={showConsent}
+        onConsent={handleConsent}
+        onDecline={handleDecline}
+        onClose={() => {}}
+      />
     </div>
   );
 }
