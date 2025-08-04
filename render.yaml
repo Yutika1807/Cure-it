@@ -1,7 +1,7 @@
 services:
   - type: web
     name: cure-it-app
-    env: node
+    runtime: node
     plan: free
     buildCommand: npm install && npm run build
     startCommand: npm start
