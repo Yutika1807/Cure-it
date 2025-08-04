@@ -47,6 +47,15 @@ app.use((req, res, next) => {
     throw err;
   });
 
+  // Health check endpoint for Render
+  app.get('/api/health', (req, res) => {
+    res.status(200).json({ 
+      status: 'ok', 
+      timestamp: new Date().toISOString(),
+      message: 'Cure It API is running successfully!'
+    });
+  });
+
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes

@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: cure-it-app
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cure-it-db
+          property: connectionString
+    healthCheckPath: /api/health
+    
+databases:
+  - name: cure-it-db
+    databaseName: cure_it
+    user: cure_it_user
+    plan: free
